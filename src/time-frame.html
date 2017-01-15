@@ -232,7 +232,8 @@
 
         _checkDbAppointments: function () {
             let uid = firebase.auth().currentUser.uid,
-                self = this;
+                self = this
+                frameFound = false;
 
             let data = firebase.database().ref("/users/"+uid+'/'+this.day+'/'+this.time).once('value').then(function(snapshot) {
                 let frameFound = false;
@@ -243,26 +244,17 @@
                         self._setupModel();
                         self.set('frameKey', key);
                         frameFound = true;
-                        console.log('founded', frame);
                     }
                 });
-                if(!frameFound){
-                    //self._reset();
-                    self.set('reserved' , false);
+            });
+               if(!frameFound){
                     self.set('frame', {time:self.get('time'), reserved: false, clientName: '', clientEmail: ''});
-
-                    self.set('clientName', '');
-                    self.set('clientEmail', '');
-                    self.set('reserved', false);
                     self._setupModel();
                 }
-                
-            });
         },
 
         _setupModel: function() {
             this.set('day' , this.$.meta._metaData['currentDayShort']);
-            console.log(this.frame,this.$.meta._metaData['currentDayShort']);
             this.set('time' , this.frame.time);
             this.set('reserved' , this.frame.reserved);
             this.set('reserved' , this.frame.reserved);
@@ -274,7 +266,6 @@
             if(this.secondTime){
                 this._setupModel();
                 this._checkDbAppointments();
-                //console.log(this.frame,this.$.meta._metaData['currentDayShort']);
             }else{
                 this.secondTime = true;
             }
