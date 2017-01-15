@@ -27,7 +27,8 @@
     "paper-date-picker-item": "Collaborne/paper-date-picker-item#^1.2.1",
     "iron-meta": "PolymerElements/iron-meta#^1.1.2",
     "polymerfire": "firebase/polymerfire#^0.10.3",
-    "paper-card": "PolymerElements/paper-card#^1.1.4"
+    "paper-card": "PolymerElements/paper-card#^1.1.4",
+    "tk-loading-backdrop": "butterandfly/tk-loading-backdrop#^0.1.2"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

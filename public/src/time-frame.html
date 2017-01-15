@@ -9,8 +9,14 @@
 <link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
 <link rel="import" href="../bower_components/iron-icons/image-icons.html">
 <link rel="import" href="../bower_components/iron-meta/iron-meta.html">
+
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-database-script.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+
 <link rel="import" href="shared-styles.html">
 
 </head><body><dom-module id="time-frame">
@@ -92,7 +98,7 @@
       }
     </style>
     
-    <div class="card">
+    <div class="card" hidden$="[[!user]]">
         <div class$="{{_getClasses(reserved)}}" on-tap="_reserve">
             <paper-icon-item>
                 <iron-icon icon="{{frameTimeIcon}}" item-icon="" class$="{{_getClassIcon(reserved)}}"></iron-icon>
@@ -138,24 +144,34 @@
     </paper-dialog>
 
     <iron-meta id="meta"></iron-meta>
-
     
+    <firebase-auth user="{{user}}"></firebase-auth>
 
-    
+    <firebase-query id="query" path="/users/[[user.uid]]/{{day}}/{{time}}" data="{{dbframe}}">
+    </firebase-query>
 
   </template>
 
   <script>
     Polymer({
         is: 'time-frame',
+
         observers: [
             '_updateStatus(reserved)'
         ],
+
         properties: {
             /**
             * `timerObj` represents timer initial obj used in the initialization
             **/
             frame: {
+                type:Object,
+                notify: true,
+            },
+            /**
+            * `timerObj` represents timer initial obj used in the initialization
+            **/
+            dbframe: {
                 type:Object,
                 notify: true,
             },
@@ -193,95 +209,147 @@
             day: {
                 type: String,
                 notify: true,
+            },
+            frameKey: {
+                type:String,
+                notify: true,
+            },
+            notifydataupdate: {
+                type: Boolean,
+                notify: true,
+                observer: '_dateUpdated'
             }
         },
 
         attached : function() {
-            this.set('day' , this.$.meta._metaData['currentDay']);
+            this._setupModel();
+            this._checkDbAppointments();
+        },
+
+        _checkDbAppointments: function () {
+            let uid = firebase.auth().currentUser.uid,
+                self = this
+                frameFound = false;
+
+            let data = firebase.database().ref("/users/"+uid+'/'+this.day+'/'+this.time).once('value').then(function(snapshot) {
+                let frameFound = false;
+                Object.keys(snapshot.val()).map((key)=>{
+                    let frame = snapshot.val()[key];
+                    if(frame.time.split(':')[0] == self.time.split(':')[0]){
+                        self.set('frame', frame);
+                        self._setupModel();
+                        self.set('frameKey', key);
+                        frameFound = true;
+                    }
+                });
+            });
+               if(!frameFound){
+                    self.set('frame', {time:self.get('time'), reserved: false, clientName: '', clientEmail: ''});
+                    self._setupModel();
+                }
+        },
+
+        _setupModel: function() {
+            this.set('day' , this.$.meta._metaData['currentDayShort']);
             this.set('time' , this.frame.time);
             this.set('reserved' , this.frame.reserved);
             this.set('reserved' , this.frame.reserved);
             this.set('clientName' , this.frame.clientName);
             this.set('clientEmail' , this.frame.clientEmail);
-
-            //console.log(this.$.query.ref);
         },
 
-        attributeChanged: function() {
-            console.log(arguments);
+        _dateUpdated: function() {
+            if(this.secondTime){
+                this._setupModel();
+                this._checkDbAppointments();
+            }else{
+                this.secondTime = true;
+            }
         },
 
-      _reserve: function(event){
-        this.$.name.value = this.clientName;
-        this.$.email.value = this.clientEmail;
-        this.$.modal.open();
-      },
+        _reserve: function(event){
+            this.$.name.value = this.clientName;
+            this.$.email.value = this.clientEmail;
+            this.$.modal.open();
+        },
 
-      _openTimePicker: function(event){
-          this.$.timermodal.open();
-      },
+        _openTimePicker: function(event){
+            this.$.timermodal.open();
+        },
 
-      _submit: function(event){
-          this.$.clientForm.submit();
-          let self = this;
+        _submit: function(event){
+            this.$.clientForm.submit();
+            let self = this;
 
-          if(this.$.name.value !== '' && this.$.email.value !== ''){
-                this.set('clientName', this.$.name.value);
-                this.set('clientEmail', this.$.email.value);
-                this.set('reserved', true);
-                
-                this.$.meta._metaData[this.$.meta._metaData['currentDay']].map((obj)=>{
-                    if(obj.time.split(':')[0] === self.time.split(':')[0]){
-                        obj.clientName = self.clientName;
-                        obj.clientEmail = self.clientEmail;
+            if(this.$.name.value !== '' && this.$.email.value !== ''){
+                    this.set('clientName', this.$.name.value);
+                    this.set('clientEmail', this.$.email.value);
+                    this.set('reserved', true);
+                    
+                    let self = this;
+                    this.$.meta._metaData[this.$.meta._metaData['currentDay']].map((obj)=>{
+                        if(obj.time.split(':')[0] === self.time.split(':')[0]){
+                            obj.clientName = self.clientName;
+                            obj.clientEmail = self.clientEmail;
+                            obj.reserved = self.reserved;
+                            self.set('frame', obj);
+                        }
+                    });
+                    if(this.frameKey){
+                        firebase.database().ref("/users/"+firebase.auth().currentUser.uid+'/'+this.day+'/'+this.time+'/'+this.frameKey).update(this.get('frame'));
+                    }else{
+                        this.$.query.ref.push(this.get('frame'));
                     }
-                });
 
-                this.$.clientForm.reset();
-                this.$.modal.close();
-                this.selected = {};
-          }
-      },
+                    this.$.clientForm.reset();
+                    this.$.modal.close();
+                    this.selected = {};
+            }
+        },
 
-      _reset: function(event){
-        this.$.clientForm.reset();
-        this._deleteReservation();
-      },
+        _reset: function(event){
+            this.$.clientForm.reset();
+            this._deleteReservation();
+        },
 
-      _deleteReservation: function(){
-        this.set('clientName', '');
-        this.set('clientEmail', '');
-        this.set('reserved', false);
-      },
+        _deleteReservation: function(){
+            this.set('clientName', '');
+            this.set('clientEmail', '');
+            this.set('reserved', false);
 
-      _getClasses: function (reserved) {
-        var classes = 'circle'
-        if(reserved) {
-            classes += ' bussy';
-        }else{
-            classes += ' free';
-        }
-        return classes;
-      },
+            let uid = firebase.auth().currentUser.uid,
+                key = this.frameKey;
+            let data = firebase.database().ref("/users/"+uid+'/'+this.day+'/'+this.time+'/'+key).remove();
+        },
 
-      _getClassIcon: function (reserved) {
-          return 'addCirclePos';
-          return !reserved ? 'addCirclePos' : 'addCirclePos editCicleIcon';
-      },
+        _getClasses: function (reserved) {
+            var classes = 'circle'
+            if(reserved) {
+                classes += ' bussy';
+            }else{
+                classes += ' free';
+            }
+            return classes;
+        },
 
-      _updateStatus : function (reserved) {
-          if(reserved){
-              this.frameTimeIcon = 'image:edit';
-          }else{
-              this.frameTimeIcon = 'add-circle';
-          }
-      },
+        _getClassIcon: function (reserved) {
+            return 'addCirclePos';
+            return !reserved ? 'addCirclePos' : 'addCirclePos editCicleIcon';
+        },
 
-      _patchOverlay: function (e) {
-        if (e.target.withBackdrop) {
-            e.target.parentNode.insertBefore(e.target.backdropElement, e.target);
-        }
-      },
+        _updateStatus : function (reserved) {
+            if(reserved){
+                this.frameTimeIcon = 'image:edit';
+            }else{
+                this.frameTimeIcon = 'add-circle';
+            }
+        },
+
+        _patchOverlay: function (e) {
+            if (e.target.withBackdrop) {
+                e.target.parentNode.insertBefore(e.target.backdropElement, e.target);
+            }
+        },
 
     });
   </script>

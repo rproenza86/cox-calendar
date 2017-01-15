@@ -9,6 +9,7 @@
 <link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
 <link rel="import" href="../bower_components/iron-icons/image-icons.html">
 <link rel="import" href="../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="../bower_components/tk-loading-backdrop/tk-loading-backdrop.html">
 
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-query.html">
@@ -124,9 +125,16 @@
                     {{time}}
                 </div>
             </h1>
-            <paper-input name="name" id="name" label="Name" required>{{clientName}}</paper-input>
+            <paper-input name="name" id="name" label="Name" required>
+                <iron-icon icon="icons:account-circle" prefix></iron-icon>
+                {{clientName}}
+            </paper-input>
             <br>
-            <paper-input name="email" id="email" label="Email" required>{{clientEmail}}</paper-input>
+            <paper-input name="email" id="email" label="Email" required>
+                <iron-icon icon="mail" prefix></iron-icon>
+                {{clientEmail}}
+            </paper-input>
+
             <br>
             <div class="buttons">
             <paper-button raised on-click="_submit">Submit</paper-button>
@@ -154,6 +162,9 @@
         data="{{dbframe}}">
     </firebase-query>
 
+    <template is="dom-if" if="{{loading}}">
+        <tk-loading-backdrop opened></tk-loading-backdrop>
+    </template>
   </template>
 
   <script>
@@ -222,6 +233,10 @@
                 type: Boolean,
                 notify: true,
                 observer: '_dateUpdated'
+            },
+            loading: {
+                type: Boolean,
+                notify: true,
             }
         },
 
@@ -231,6 +246,7 @@
         },
 
         _checkDbAppointments: function () {
+            this.set('loading', true);
             let uid = firebase.auth().currentUser.uid,
                 self = this
                 frameFound = false;
@@ -247,10 +263,11 @@
                     }
                 });
             });
-               if(!frameFound){
-                    self.set('frame', {time:self.get('time'), reserved: false, clientName: '', clientEmail: ''});
-                    self._setupModel();
-                }
+            if(!frameFound){
+                self.set('frame', {time:self.get('time'), reserved: false, clientName: '', clientEmail: ''});
+                self._setupModel();
+            }
+            this.set('loading', false);
         },
 
         _setupModel: function() {
@@ -358,4 +375,3 @@
     });
   </script>
 </dom-module>
-reserved

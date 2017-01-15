@@ -5,6 +5,13 @@
 <link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
 <link rel="import" href="../bower_components/iron-meta/iron-meta.html">
 
+<link rel="import" href="../bower_components/polymerfire/polymerfire.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-database-script.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+
 </head><body><dom-module id="date-header">
   <template>
     <style>
@@ -63,6 +70,12 @@
     </paper-dialog>  
 
     <iron-meta id="meta"></iron-meta>
+
+    <firebase-auth user="{{user}}"></firebase-auth>
+
+    <firebase-query id="query" path="/users/[[user.uid]]/{{day}}/{{time}}" data="{{frame}}">
+    </firebase-query>
+
   </template>
 
   <script>
@@ -70,37 +83,43 @@
       is: 'date-header',
 
       properties: {
-        /**
-         * The selected date (YYYY-MM-DD)
-         */
-        date: {
-          type: Date,
-          notify: true
-        },
-        /**
-         * The format of the date displayed in the heading.
-         * See docuemntation for Moment.js for more info.
-         */
-        headingFormat: {
-          type: String,
-          value: 'ddd, MMM D'
-        },
-        /**
-         * The current locale
-         */
-        locale: {
-          type: String,
-          value: 'en'
-        },
-        /**
-        * `notifyUpdate` notify when the date is updated and is excecuted its observer in the parent
-        **/
-        notifyUpdate: {
-          type: Boolean,
-          notify: true,
-          readOnly: false
-        }
-
+          /**
+           * The selected date (YYYY-MM-DD)
+           */
+          date: {
+            type: Date,
+            notify: true
+          },
+          /**
+           * The format of the date displayed in the heading.
+           * See docuemntation for Moment.js for more info.
+           */
+          headingFormat: {
+            type: String,
+            value: 'ddd, MMM D'
+          },
+          /**
+           * The current locale
+           */
+          locale: {
+            type: String,
+            value: 'en'
+          },
+          /**
+          * `notifyUpdate` notify when the date is updated and is excecuted its observer in the parent
+          **/
+          notifyUpdate: {
+            type: Boolean,
+            notify: true,
+            readOnly: false
+          },
+          /**
+          * `day` 
+          **/
+          day: {
+              type: String,
+              notify: true,
+          }
       },
 
       ready: function() {
@@ -127,6 +146,9 @@
               ]; 
         }
         this.$.meta._metaData['currentDay'] = this.date.toString();
+        var date = new Date();
+        this.$.meta._metaData['currentDayShort'] = this.date.toString().split(date.getUTCFullYear())[0] + date.getUTCFullYear();
+
       },
 
       _openDatePicker: function(event){
@@ -135,8 +157,8 @@
 
       _submitDate: function() {
         this._setupDayInfo();
-        this.set('someProp','fdsfsfsdfds');
         this.set('notifyUpdate',false);
+        this.set('notifyUpdate',true);
       },
 
       _splitHeadingDate: function(date, format, locale) {

@@ -16,8 +16,6 @@
       }
     </style>
 
-    
-
     <iron-meta id="meta"></iron-meta>
 
     <div class="card">
@@ -25,12 +23,12 @@
       <date-header notify-update="{{notifyDayUpdated}}"></date-header>
 
       <template id="timesList" is="dom-repeat" items="[[dayTimes]]">  
-          <time-frame frame="[[item]]"></time-frame>
+          <time-frame frame="[[item]]" notifydataupdate="{{notifyDayUpdated}}"></time-frame>
       </template>
 
     </div>
   </template>
 
-  <script>Polymer({is:"my-view1",properties:{times:{type:Object,notify:!0,readOnly:!0,value:function(){return[{time:"9:00am",reserved:!1,clientName:"",clientEmail:""},{time:"10:00am",reserved:!1,clientName:"",clientEmail:""},{time:"11:00am",reserved:!1,clientName:"",clientEmail:""},{time:"12:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"1:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"2:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"3:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"4:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"5:00pm",reserved:!1,clientName:"",clientEmail:""}]}},dayTimes:{type:Object,notify:!0,readOnly:!1,value:function(){return[]},observer:"_refreshTimesList"},notifyDayUpdated:{readOnly:!1,observer:"_notifyUpdation"}},ready:function(){this._setupDayInfo()},_setupDayInfo:function(){this.set("dayTimes",this.$.meta._metaData[this.$.meta._metaData.currentDay]),this.$.timesList.render()},_refreshTimesList:function(){this.$.timesList.render()},_notifyUpdation:function(){console.log(this.$.meta._metaData),this._setupDayInfo()}});</script>
+  <script>Polymer({is:"my-view1",properties:{times:{type:Object,notify:!0,readOnly:!0,value:function(){return[{time:"9:00am",reserved:!1,clientName:"",clientEmail:""},{time:"10:00am",reserved:!1,clientName:"",clientEmail:""},{time:"11:00am",reserved:!1,clientName:"",clientEmail:""},{time:"12:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"1:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"2:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"3:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"4:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"5:00pm",reserved:!1,clientName:"",clientEmail:""}]},notifyDayUpdated:{type:Boolean,notify:!0}},dayTimes:{type:Object,notify:!0,readOnly:!1,value:function(){return[]},observer:"_refreshTimesList"},notifyDayUpdated:{readOnly:!1}},ready:function(){this._setupDayInfo()},_setupDayInfo:function(){this.set("dayTimes",this.$.meta._metaData[this.$.meta._metaData.currentDay]),this.$.timesList.render()},_refreshTimesList:function(){this.$.timesList.render()}});</script>
 </dom-module>
 </body></html>
