@@ -1,0 +1,317 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
+<link rel="import" href="../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="../bower_components/polymerfire/polymerfire.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="time-frame">
+  <template>
+
+    <style include="shared-styles">
+      :host {
+            display: block;
+
+            padding: 10px;
+      }     
+      .modalDialog1 {
+            padding: 0px 40px !important;
+            left: 42% !important;
+      }  
+      .modalDialog2 {
+            padding: 0px 40px !important;
+            left: 33% !important;
+      }
+      .free {
+          background-color: #D4E157;
+          color: black;
+      }
+      .bussy {
+          background-color: #FF5722 !important;
+          color: ghostwhite;
+      }
+      .circle {
+            width: 164px !important;
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      }
+      .clientHeader {
+            padding: 5px;
+      }
+      .paper-fab {
+            right: -93%;
+            top: 40px;       
+      }
+      .closeDialog {
+            color: #9e9e9e;
+            background:  rgba(255, 255, 255, 0.81);
+            right: 20%;
+            top: -50px; 
+      }
+      .paper-input-container-0 .input-content.paper-input-container input {
+            min-width: 300px;
+      }
+      .card {
+            background: #E1F5FE;
+      }
+      .cardBussy{
+            background:#FBE9E7;
+            color: #212121;
+      }
+      .spanClientInfo {
+            font-size: 1.10rem;
+            text-transform: none;
+            color: #0098DB;
+      }
+      .margin2x{
+            margin-left: 20px;
+      }
+      .spanTime {
+            font-size: 1.7rem;
+            text-transform: none;
+            margin-left: -30%;
+            margin-top: 10%;
+      }
+      .addCirclePos {
+            right: -220%;
+            top: -15px;
+            color: #212121 !important;
+      }
+      .editCicleIcon {
+          color: #212121 !important;
+      }
+      .dropShadow {
+          opacity: 0.6 !important;
+      }
+    </style>
+    
+    <div class="card">
+        <div class$="{{_getClasses(reserved)}}" on-tap="_reserve">
+            <paper-icon-item>
+                <iron-icon icon="{{frameTimeIcon}}" item-icon class$="{{_getClassIcon(reserved)}}"></iron-icon>
+                <span class="spanTime">{{time}}</span>
+            </paper-icon-item>
+        </div>
+
+        <template is="dom-if" if="{{reserved}}">
+            <paper-fab icon="delete" class="bussy paper-fab" on-click="_reset"></paper-fab>
+            <div class="card cardBussy" on-tap="_reserve">
+                <h3 class="bussy clientHeader">Reserved by:</h3>
+                <p class="margin2x" style="align-content: center;"><span class="spanClientInfo">Client Name:</span> {{clientName}}</p>
+                <p class="margin2x"><span class="spanClientInfo">Client Email: </span>{{clientEmail}}</p>
+            </div>
+        </template>
+    </div>
+
+    <paper-dialog id="modal" on-iron-overlay-opened="_patchOverlay" modal class="modalDialog1">
+        <paper-fab icon="cancel" class="closeDialog" dialog-confirm autofocus></paper-fab>
+        <form is="iron-form" id="clientForm">
+            <h1>Appoinment for 
+                <div class$="{{_getClasses(reserved)}}" on-click="_openTimePicker">
+                    {{time}}
+                </div>
+            </h1>
+            <paper-input name="name" id="name" label="Name" required>{{clientName}}</paper-input>
+            <br>
+            <paper-input name="email" id="email" label="Email" required>{{clientEmail}}</paper-input>
+            <br>
+            <div class="buttons">
+            <paper-button raised on-click="_submit">Submit</paper-button>
+            <paper-button raised on-click="_reset">Reset</paper-button>
+            </div>
+        </form>
+    </paper-dialog>
+
+    <paper-dialog id="timermodal" modal class="paper-time-picker-dialog modalDialog2" on-iron-overlay-opened="_patchOverlay"
+     on-iron-overlay-closed="dismissDialog">
+        <paper-time-picker id="timePicker" time="{{time}}"></paper-time-picker>
+        <div class="buttons">
+            <paper-button dialog-dismiss>Cancel</paper-button>
+            <paper-button dialog-confirm>OK</paper-button>
+        </div>
+    </paper-dialog>
+
+    <iron-meta id="meta"></iron-meta>
+
+    <!--firebase-document
+            id="document1"
+            app-name="cox_calendar"
+            path="/"
+            data="[[day]]">
+        </firebase-document>
+
+        <firebase-document
+            id="document2"
+            app-name="cox_calendar"
+            path="/{{day}}"
+            data="[[time]]">
+        </firebase-document>
+
+        <firebase-document
+            id="document3"
+            app-name="cox_calendar"
+            path="/{{day}}/{{time}}"
+            data="{{frame}}">
+    </firebase-document-->
+
+    <!--firebase-query
+        id="query"
+        path="/{{day}}/{{time}}"
+        data="{{frame}}">
+    </firebase-query-->
+
+  </template>
+
+  <script>
+    Polymer({
+        is: 'time-frame',
+        observers: [
+            '_updateStatus(reserved)'
+        ],
+        properties: {
+            /**
+            * `timerObj` represents timer initial obj used in the initialization
+            **/
+            frame: {
+                Object,
+                notify: true,
+            },
+            /**
+            * `time` represents time frame for the appoinment
+            **/
+            time: {
+                type: String,
+                notify: true,
+            },
+            /**
+            * `reserved` if frame is free or not
+            **/
+            reserved: {
+                type: Boolean,
+                notify: true,
+            },
+            /**
+            * `clientName` 
+            **/
+            clientName: {
+                type: String,
+                notify: true,
+            },
+            /**
+            * `clientName` 
+            **/
+            clientEmail: {
+                type: String,
+                notify: true,
+            },
+            /**
+            * `day` 
+            **/
+            day: {
+                type: String,
+                notify: true,
+            }
+        },
+
+        attached : function() {
+            this.set('day' , this.$.meta._metaData['currentDay']);
+            this.set('time' , this.frame.time);
+            this.set('reserved' , this.frame.reserved);
+            this.set('reserved' , this.frame.reserved);
+            this.set('clientName' , this.frame.clientName);
+            this.set('clientEmail' , this.frame.clientEmail);
+
+            //console.log(this.$.query.ref);
+        },
+
+        attributeChanged: function() {
+            console.log(arguments);
+        },
+
+      _reserve: function(event){
+        let model = event.model;
+        //model.set('reserved', true);
+
+        this.$.name.value = this.clientName;
+        this.$.email.value = this.clientEmail;
+
+        this.$.modal.open();
+      },
+
+      _openTimePicker: function(event){
+          this.$.timermodal.open();
+      },
+
+      _submit: function(event){
+          this.$.clientForm.submit();
+          let self = this;
+
+          if(this.$.name.value !== '' && this.$.email.value !== ''){
+                this.set('clientName', this.$.name.value);
+                this.set('clientEmail', this.$.email.value);
+                this.set('reserved', true);
+                
+                this.$.meta._metaData[this.$.meta._metaData['currentDay']].map((obj)=>{
+                    if(obj.time.split(':')[0] === self.time.split(':')[0]){
+                        obj.clientName = self.clientName;
+                        obj.clientEmail = self.clientEmail;
+                    }
+                });
+
+                this.$.clientForm.reset();
+                this.$.modal.close();
+                this.selected = {};
+          }
+      },
+
+      _reset: function(event){
+        this.$.clientForm.reset();
+        this._deleteReservation();
+      },
+
+      _deleteReservation: function(){
+        this.set('clientName', '');
+        this.set('clientEmail', '');
+        this.set('reserved', false);
+      },
+
+      _getClasses: function (reserved) {
+        var classes = 'circle'
+        if(reserved) {
+            classes += ' bussy';
+        }else{
+            classes += ' free';
+        }
+        return classes;
+      },
+
+      _getClassIcon: function (reserved) {
+          return 'addCirclePos';
+          return !reserved ? 'addCirclePos' : 'addCirclePos editCicleIcon';
+      },
+
+      _updateStatus : function (reserved) {
+          if(reserved){
+              this.frameTimeIcon = 'image:edit';
+          }else{
+              this.frameTimeIcon = 'add-circle';
+          }
+      },
+
+      _patchOverlay: function (e) {
+        if (e.target.withBackdrop) {
+            e.target.parentNode.insertBefore(e.target.backdropElement, e.target);
+        }
+      },
+
+    });
+  </script>
+</dom-module>
+reserved

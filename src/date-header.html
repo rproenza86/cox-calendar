@@ -1,0 +1,168 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-date-picker/paper-date-picker.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
+<link rel="import" href="../bower_components/iron-meta/iron-meta.html">
+
+<dom-module id="date-header">
+  <template>
+    <style>
+      #heading {
+        padding: 16px;
+        box-sizing: border-box;
+        color: var(--text-primary-color);
+        background: #4285f4;
+        @apply(--layout-vertical);
+        @apply(--layout-around-justfied);
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      
+      }
+      #heading .date,
+      #heading .year {
+        cursor: pointer;
+      }
+      #heading .date {
+        @apply(--paper-font-display1);
+        font-weight: bold;
+        margin-top: 2px;
+        @apply(--paper-date-picker-heading-date);
+      }
+      #heading div.date {
+        letter-spacing: 0.025em;
+      }
+      #heading .date span {
+        white-space: nowrap;
+      }
+      #heading .year {
+        @apply(--paper-font-body2);
+        font-size: 16px;
+        @apply(--paper-date-picker-heading-date);
+      }
+      #heading:not(.pg-chooseYear) .year,
+      #heading.pg-chooseYear .date {
+        color: var(--light-primary-color);
+      }   
+    </style>
+
+    <div id="heading" class="heading-content pg-chooseDate style-scope paper-date-picker" on-tap="_openDatePicker">
+        <div class="year style-scope paper-date-picker">{{dateFormat(date, 'YYYY', locale)}}</div>
+        <div class="date style-scope paper-date-picker">
+            <template is="dom-repeat" items="{{_splitHeadingDate(date, headingFormat, locale)}}">
+            <span class="style-scope paper-date-picker">{{item}}</span>
+            </template>
+        </div>         
+    </div>
+
+    <paper-dialog id="dialog" class="paper-date-picker-dialog">
+        <paper-date-picker id="picker" date="{{date}}"></paper-date-picker>
+        <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm on-click="_submitDate">OK</paper-button>
+        </div>
+    </paper-dialog>  
+
+    <iron-meta id="meta"></iron-meta>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'date-header',
+
+      properties: {
+        /**
+         * The selected date (YYYY-MM-DD)
+         */
+        date: {
+          type: Date,
+          notify: true
+        },
+        /**
+         * The format of the date displayed in the heading.
+         * See docuemntation for Moment.js for more info.
+         */
+        headingFormat: {
+          type: String,
+          value: 'ddd, MMM D'
+        },
+        /**
+         * The current locale
+         */
+        locale: {
+          type: String,
+          value: 'en'
+        },
+        /**
+        * `notifyUpdate` notify when the date is updated and is excecuted its observer in the parent
+        **/
+        notifyUpdate: {
+          type: Boolean,
+          notify: true,
+          readOnly: false
+        }
+
+      },
+
+      ready: function() {
+        this._setupDayInfo();
+      },
+
+      _setupDayInfo: function() {
+        //array of appointments for this day
+        let currentDateInfo = this.$.meta._metaData[this.date] || null;
+        if(currentDateInfo){
+
+        }else{
+            //this.$.meta._metaData[this.date.toString()] = this.$.meta.byKey('times').slice(0);
+            this.$.meta._metaData[this.date.toString()] =  [
+                {time:'9:00am', reserved: false, clientName: '', clientEmail: ''},
+                {time:'10:00am', reserved: false, clientName: '', clientEmail: ''},
+                {time:'11:00am', reserved: false, clientName: '', clientEmail: ''},
+                {time:'12:00pm', reserved: false, clientName: '', clientEmail: ''},
+                {time:'1:00pm', reserved: false, clientName: '', clientEmail: ''},
+                {time:'2:00pm', reserved: false, clientName: '', clientEmail: ''},
+                {time:'3:00pm', reserved: false, clientName: '', clientEmail: ''},
+                {time:'4:00pm', reserved: false, clientName: '', clientEmail: ''},
+                {time:'5:00pm', reserved: false, clientName: '', clientEmail: ''}
+              ]; 
+        }
+        this.$.meta._metaData['currentDay'] = this.date.toString();
+      },
+
+      _openDatePicker: function(event){
+          this.$.dialog.open();
+      },
+
+      _submitDate: function() {
+        this._setupDayInfo();
+        this.set('someProp','fdsfsfsdfds');
+        this.set('notifyUpdate',false);
+      },
+
+      _splitHeadingDate: function(date, format, locale) {
+        var re = new RegExp(this.headingBreak, 'g');
+        var text = this.dateFormat(date, format, locale);
+        var seps = text.match(re);
+        var value;
+        if (!seps) {
+          value = [text];
+        } else {
+          value = text.split(re).map(function(s, i) {
+            return s + (seps[i] || '');
+          });
+        }
+        return value;
+      },
+
+      dateFormat: function(date, format, locale) {
+        if (!date) {
+          return '';
+        }
+        var value = moment(date);
+        value.locale(locale || this.locale);
+        return value.format(format);
+      },
+
+    });
+  </script>
+</dom-module>

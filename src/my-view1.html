@@ -1,0 +1,139 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-date-picker/paper-date-picker.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
+<link rel="import" href="../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="/bower_components/polymerfire/polymerfire.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="time-frame.html">
+<link rel="import" href="date-header.html">
+
+<dom-module id="my-view1">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+    </style>
+
+    <firebase-app 
+        id="firebase"
+        app-name="cox_calendar"
+        apiKey= "AIzaSyAa39ysX5eRtUnrfFGskX1vqgpNjhJVe_g"
+        authDomain= "cox-calendar.firebaseapp.com"
+        databaseURL= "https://cox-calendar.firebaseio.com"
+        storageBucket= "cox-calendar.appspot.com"
+        messagingSenderId= "371050413071"
+    ></firebase-app>
+
+    <iron-meta id="meta"></iron-meta>
+
+    <div class="card">
+
+      <date-header notify-update="{{notifyDayUpdated}}"></date-header>
+
+      <template id="timesList" is="dom-repeat" items="[[dayTimes]]">  
+          <time-frame frame="[[item]]"></time-frame>
+      </template>
+
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'my-view1',
+
+      properties: {
+        /**
+        * `times` represents list of hour long slots from 9am to 5pm
+        **/
+        times: {
+          type: Object,
+          notify: true,
+          readOnly: true,
+          value: function() { return [
+            {time:'9:00am', reserved: false, clientName: '', clientEmail: ''},
+            {time:'10:00am', reserved: false, clientName: '', clientEmail: ''},
+            {time:'11:00am', reserved: false, clientName: '', clientEmail: ''},
+            {time:'12:00pm', reserved: false, clientName: '', clientEmail: ''},
+            {time:'1:00pm', reserved: false, clientName: '', clientEmail: ''},
+            {time:'2:00pm', reserved: false, clientName: '', clientEmail: ''},
+            {time:'3:00pm', reserved: false, clientName: '', clientEmail: ''},
+            {time:'4:00pm', reserved: false, clientName: '', clientEmail: ''},
+            {time:'5:00pm', reserved: false, clientName: '', clientEmail: ''}
+          ] }
+        },
+        /**
+        * `dayTimes` represents list of hour long slots from 9am to 5pm for the selected day
+        **/
+        dayTimes: {
+          type: Object,
+          notify: true,
+          readOnly: false,
+          value: function() { return []; },
+          observer: '_refreshTimesList' 
+        },
+        /**
+        * `notifyUpdate` notify when the date is updated and is excecuted its observer
+        **/
+        notifyDayUpdated: {
+          readOnly: false,
+          observer: '_notifyUpdation'
+        },
+      },
+
+      attached: function () {
+
+        let day = this.$.meta._metaData['currentDay'],
+            frameObjArray = this.dayTimes
+            self = this;
+
+        //this.$.firebase.database().ref(+ '/' + day + '/' + time ).set(frameObjArray);
+      },
+
+      ready: function () {
+        this._setupDayInfo();
+
+        let day = this.$.meta._metaData['currentDay'],
+            frameObjArray = this.dayTimes
+            self = this;
+
+        this.set('day', day);
+
+        
+        frameObjArray.map((obj)=>{
+            //self._writeUserAppointment(day, obj.time, obj)
+        });
+
+        //console.log('updated time list',this.$.meta._metaData);
+        //console.dir(this.$.firebase);
+        
+      },
+
+      _writeUserAppointment: function(day, time, frameObj) {
+        //this.$.firebase.database().ref(day + '/' + time ).set(frameObj);
+      },
+      
+      _setupDayInfo: function() {
+        this.set('dayTimes', this.$.meta._metaData[this.$.meta._metaData['currentDay']]);
+        this.$.timesList.render();
+      },
+      
+      _refreshTimesList: function () {
+        this.$.timesList.render();
+      },
+
+      _notifyUpdation: function () {
+        console.log(this.$.meta._metaData);
+        //this.$.meta._metaData[this.$.meta._metaData['currentDay']] = this.dayTimes;
+        this._setupDayInfo();
+      },
+
+
+    });
+  </script>
+</dom-module>
