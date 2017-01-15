@@ -1,0 +1,373 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+
+<dom-module id="app-login">
+  <!-- Defines the element's style and local DOM -->
+  <template>
+    <style>
+        :host {
+        display: block;
+        padding: 16px;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        margin: 0 auto;
+        text-align: center;
+        margin: 0 auto;
+        }
+
+        :host(.horizontal) {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        @apply(--layout-around-justified);
+        max-width: inherit;
+        }
+
+        paper-dialog {
+            padding: 0px 40px;
+            left: 0% !important;
+        }
+        firebase-auth{
+        display: none;
+        }
+        .signInButton img{
+        padding: 0 8px 0 2px;
+        max-height: 15px;
+        }
+        .signInButton{
+        width: 220px;
+        text-align: left;
+        margin-bottom: 15px;
+        text-transform: none;
+        min-height: 40px;
+        }
+        .signInButton.mini {
+        width: 150px;
+        }
+        #googSignIn{
+        background-color: white;
+        }
+        #fbSignIn{
+        background-color: #3B5999;
+        color: white;
+        }
+        #twtrSignIn{
+        background-color: #55ACEE;
+        color: white;
+        }
+        #ghSignIn{
+        background-color: #F5F5F5
+        }
+        #anonSignIn{
+        background-color: #303030;
+        color: white;
+        }
+        #fbSignIn:hover{
+        background-color: #4265b0;
+        }
+        #twtrSignIn:hover{
+        background-color: #5cb9ff;
+        }
+        #ghSignIn:hover{
+        background-color: white;
+        }
+        #anonSignIn:hover{
+        background-color: #414040;
+        }
+    </style>
+
+    <firebase-app 
+        auth-domain="webbroker-3795c.firebaseapp.com"
+        database-url="https://webbroker-3795c.firebaseio.com"
+        api-key="AIzaSyC3dZ7N75-CHIjDdgTyPERcxbGU8N-6nrQ"
+        messaging-sender-id="93636083292">
+    </firebase-app>
+      
+    <firebase-auth id="google" provider="google" user="{{googleUser}}" signed-in="{{googleSignedIn}}" on-error="_handleError">
+    </firebase-auth>
+    <firebase-auth id="facebook" provider="facebook" user="{{facebookUser}}" signed-in="{{facebookSignedIn}}" on-error="_handleError">
+    </firebase-auth>
+    <firebase-auth id="twitter" provider="twitter" user="{{twitterUser}}" signed-in="{{twitterSignedIn}}" on-error="_handleError">
+    </firebase-auth>
+    <firebase-auth id="github" provider="github" user="{{githubUser}}" signed-in="{{githubSignedIn}}" on-error="_handleError">
+    </firebase-auth>
+    <firebase-auth id="anonymous" user="{{anonUser}}" signed-in="{{anonSignedIn}}" on-error="_handleError">
+    </firebase-auth>
+
+    <!--paper-button raised id="loginBtn" onclick="dialog.open()">Login</paper-button-->
+    
+    <template is="dom-if" if="{{!signedIn}}" id="loginBtn">
+        <paper-button raised  on-tap="_login">Login</paper-button>
+    </template>
+    <template is="dom-if" if="{{signedIn}}">
+        <paper-button raised id="loginBtn1" on-tap="signOut">Log Out</paper-button>
+    </template>
+
+    <paper-dialog id="dialog">
+        <paper-card >
+            <h2>{{_getButtonText()}}</h2>
+            <template is="dom-if" if="{{google}}">
+                <paper-button id="googSignIn" class$="signInButton {{_getMiniClass()}}" on-tap="_signIn" data-auth="#google" raised><img src="../images/google.svg">Google</paper-button>
+            </template>
+            <template is="dom-if" if="{{facebook}}">
+                <paper-button id="fbSignIn" class$="signInButton {{_getMiniClass()}}" on-tap="_signIn" data-auth="#facebook" raised><img src="../images/facebook.svg">Facebook</paper-button>
+            </template>
+            <template is="dom-if" if="{{twitter}}">
+                <paper-button id="twtrSignIn" class$="signInButton {{_getMiniClass()}}" on-tap="_signIn" data-auth="#twitter" raised><img src="../images/twitter.svg">Twitter  </paper-button>
+            </template>
+            <template is="dom-if" if="{{github}}">
+                <paper-button id="ghSignIn" class$="signInButton {{_getMiniClass()}}" on-tap="_signIn" data-auth="#github" raised><img src="../images/github.svg">GitHub</paper-button>
+            </template>
+            <template is="dom-if" if="{{anonymous}}">
+                <paper-button id="anonSignIn" class$="signInButton {{_getMiniClass()}}" on-tap="_signIn" data-auth="#anonymous" raised> <img src="../images/anon.svg"> {{_getButtonText("anon")}}</paper-button>
+            </template>
+        </paper-card>
+        <br><br>
+        <template is="dom-if" if="{{signedIn}}">
+            <br>
+            <paper-button raised on-tap="signOut" style="padding-buttom:10px !important;">Log Out</paper-button>
+            <br>
+            <template is="dom-if" if="{{debug}}">
+                <paper-card>
+                    <h2>Debug info:</h2>
+                    <div> user.id = {{user.uid}}</div>
+                    <div> signedIn = {{signedIn}}</div>
+                    <div> user.displayName = {{user.displayName}}</div>
+                    <div> user.email = {{user.email}}</div>
+                    <div> user.emailVerified = {{user.emailVerified}}</div>
+                    <div> user.isAnonymous = {{user.isAnonymous}}</div>
+                    <div> user.photoURL = {{user.photoURL}} <img src$="{{user.photoURL}}" hidden="{{!user.photoURL}}" width="100px" height="100px"> </div>
+                    <div> user.providerId = {{user.providerId}}</div>
+                    <br><br><br>
+                </paper-card>
+                <br><br><br>
+            </template>
+        </template>
+    </paper-dialog>
+
+  </template>
+  <!-- Creates the element's prototype and registers it -->
+  <script>
+    Polymer({
+        is: 'app-login',
+
+        ready: function() {
+            //this.listen(this.$.loginBtn, 'tap', '_login2');
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                console.log('Service Worker and Push is supported');
+            } else {
+                console.warn('Push messaging is not supported');
+            }
+        },
+
+        listeners: {
+            //'tap': '_login'
+            //'googSignIn.tap': '_signIn'
+        },
+
+        _login1: function(e) {
+            /*this.$.auth.signInWithPopup()
+            .then(function(response) { console.table(response); })
+            .catch(function(error) { console.table(error); });*/
+        },
+
+        _login: function(e) {
+            this.$.dialog.open();
+        },
+        
+        properties: {
+            /**
+             * `appName` represents the name of the firebase-app that was instantiated
+             */
+            appName: {
+            type: String
+            },
+            /**
+             * `anonymous` represents whether to allow anonymous sign in
+             */
+            anonymous: {
+            type: Boolean,
+            value: false,
+            },
+            /**
+             * `github` represents whether to allow github sign in. See the [firebase console](https://console.firebase.google.com) Auth tab for configuration
+             */
+            github: {
+            type: Boolean,
+            value: false,
+            },
+            /**
+             * `twitter` represents whether to allow twitter sign in. See the [firebase console](https://console.firebase.google.com) Auth tab for configuration
+             */
+            twitter: {
+            type: Boolean,
+            value: false,
+            },
+            /**
+             * `facebook` represents whether to allow facebook sign in. See the [firebase console](https://console.firebase.google.com) Auth tab for configuration
+             */
+            facebook: {
+            type: Boolean,
+            value: false,
+            },
+            /**
+             * `google` represents whether to allow google sign in. See the [firebase console](https://console.firebase.google.com) Auth tab for configuration
+             */
+            google: {
+            type: Boolean,
+            value: false,
+            },
+            /**
+             * `redirect` represents whether to use a redirect instead of a popup for signing in with the selected providers
+             */
+            redirect: {
+            type: Boolean,
+            value: false,
+            },
+            /**
+             * `horizontal` represents whether to display the social buttons side by side or on top of each other
+             */
+            horizontal: {
+            type: Boolean,
+            value: false,
+            observer: '_horizontalChanged',
+            },
+            /**
+             * `mini` represents whether to display the social buttons with "Sign in with" or not
+             */
+            mini: {
+            type: Boolean,
+            value: false
+            },
+            /**
+             * `user` represents the user object returned by the firebase-auth element
+             */
+            user: {
+                type: Object,
+                readOnly: true,
+                reflectToAttribute: true,
+                notify: true,
+                computed: "_computeUser(googleUser, facebookUser, twitterUser, githubUser, anonUser)",
+                observer: "_userChanged",
+            },
+            /**
+             * `signedIn` represents the signed in state returned by the firebase-auth element
+             */
+            signedIn: {
+            type: Boolean,
+            readOnly: true,
+            notify: true,
+            reflectToAttribute: true,
+            computed: "_computeSignedIn(googleSignedIn, facebookSignedIn, twitterSignedIn, githubSignedIn, anonSignedIn)",
+            },            
+            /**
+             * `debug` represents if the debug region is shown
+             */
+            debug: {
+            type: Boolean,
+            value: false,
+            }
+        },
+
+        _getMiniClass: function(){
+        return this.mini ? "mini" : "";
+        },
+
+        _getButtonText: function(a){
+        if(this.mini){
+            return a === "anon" ? "Anonymously" : "";
+        } else {
+            return a === "anon" ? "Sign in anonymously" : "Sign in with ";
+        }
+        },
+
+        _horizontalChanged: function(newVal, oldVal){
+        if (newVal){
+            this.classList.add("horizontal");
+        } else {
+            this.classList.remove("horizontal")
+        }
+        },
+        _computeUser: function(googleUser, facebookUser, twitterUser, githubUser, anonUser){
+            var userLogIn;
+            if(this.googleSignedIn){userLogIn = googleUser;}
+            else if(this.facebookSignedIn){userLogIn = facebookUser;}
+            else if(this.twitterSignedIn){userLogIn = twitterUser;}
+            else if(this.githubSignedIn){userLogIn = githubUser;}
+            else if(this.anonSignedIn){userLogIn = anonUser;}
+            else {userLogIn =  {};}
+            userLogIn.signedIn = this.signedIn;
+            return userLogIn;
+        },
+        _computeSignedIn: function(googleSignedIn, facebookSignedIn, twitterSignedIn, githubSignedIn, anonSignedIn){
+            this.signedInFlag = true;
+            return googleSignedIn || facebookSignedIn || twitterSignedIn || githubSignedIn || anonSignedIn;
+        },
+        _userChanged: function(u){
+            if(typeof u !== 'undefined' && u != null){
+                if (!(Object.keys(u).length === 0 && u.constructor === Object)){
+                    this.fire("signedin", u);
+                }
+            }
+        },
+        _signIn: function(e) {
+            var authId = e.target.getAttribute("data-auth");
+            var context = this;
+            if(authId){
+                execSignIn(authId);
+            }else{
+                authId = e.target.parentNode.getAttribute("data-auth");
+                if (authId) execSignIn(authId);
+                else console.error("authId null");
+            }
+            function execSignIn(authType){
+                if(authId == "#anonymous"){
+                    context.$$(authId).signInAnonymously();
+                } else if(context.redirect){
+                    context.$$(authId).signInWithRedirect();
+                } else {
+                    context.$$(authId).signInWithPopup();
+                }
+            }
+            if(!this.debug) this.$.dialog.close(); 
+        },
+
+        _signInGoogle: function(e) {
+            //this.$.google.signInWithPopup();
+        },
+        
+        _signInFacebook: function(e) {
+            this.$.facebook.signInWithPopup();
+        },
+
+        _signInTwitter: function(e) {
+            this.$.twitter.signInWithPopup();
+        },
+
+        _signInGithub: function(e) {
+            this.$.github.signInWithPopup();
+        },
+
+        _signInAnonymous: function(e) {
+            this.$.anonymous.signInAnonymously();
+        },
+        _handleError: function(error){
+            console.error(error.detail);
+        },
+        /**
+         * Signs out the signed in user
+         */
+        signOut: function(){
+            if(this.googleSignedIn){this.$.google.signOut();}
+            if(this.facebookSignedIn){this.$.facebook.signOut();}
+            if(this.twitterSignedIn){this.$.twitter.signOut();}
+            if(this.githubSignedIn){this.$.github.signOut();}
+            if(this.anonSignedIn){this.$.anonymous.signOut();}
+        }
+    });
+  </script>
+</dom-module>
