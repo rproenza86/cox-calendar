@@ -20,6 +20,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../bower_components/polymerfire/polymerfire.html">
+
 <link rel="import" href="my-icons.html">
 <link rel="import" href="app-login.html">
 
@@ -58,6 +61,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         font-weight: bold;
       }
     </style>
+
+    <firebase-app
+        id="firebase"
+        app-name="cox_calendar" 
+        api-key= "AIzaSyAa39ysX5eRtUnrfFGskX1vqgpNjhJVe_g"
+        auth-domain= "cox-calendar.firebaseapp.com"
+        database-url= "https://cox-calendar.firebaseio.com"
+        storage-bucket= "cox-calendar.appspot.com"
+        messaging-sender-id= "371050413071"
+    ></firebase-app>
 
     <app-location route="{{route}}"></app-location>
     <app-route
@@ -132,9 +145,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _routePageChanged: function(page) {
         this.page = page || 'view1';
 
-        if (!this.$.drawer.persistent) {
+        /*if (!this.$.drawer.persistent) {
           this.$.drawer.close();
-        }
+        }*/
       },
 
       _pageChanged: function(page) {

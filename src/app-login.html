@@ -7,7 +7,6 @@
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 
 <dom-module id="app-login">
-  <!-- Defines the element's style and local DOM -->
   <template>
     <style>
         :host {
@@ -79,29 +78,17 @@
         background-color: #414040;
         }
     </style>
-    
-    <firebase-app
-        id="firebase"
-        app-name="cox_calendar" 
-        api-key= "AIzaSyAa39ysX5eRtUnrfFGskX1vqgpNjhJVe_g"
-        auth-domain= "cox-calendar.firebaseapp.com"
-        database-url= "https://cox-calendar.firebaseio.com"
-        storage-bucket= "cox-calendar.appspot.com"
-        messaging-sender-id= "371050413071"
-    ></firebase-app>
       
-    <firebase-auth id="google" provider="google" user="{{googleUser}}" signed-in="{{googleSignedIn}}" on-error="_handleError">
+    <firebase-auth id="google" provider="google" user="{{googleUser}}" signed-in="{{googleSignedIn}}" on-error="_handleError" status-known="{{statusKnown}}">
     </firebase-auth>
-    <firebase-auth id="facebook" provider="facebook" user="{{facebookUser}}" signed-in="{{facebookSignedIn}}" on-error="_handleError">
+    <firebase-auth id="facebook" provider="facebook" user="{{facebookUser}}" signed-in="{{facebookSignedIn}}" on-error="_handleError" status-known="{{statusKnown}}">
     </firebase-auth>
-    <firebase-auth id="twitter" provider="twitter" user="{{twitterUser}}" signed-in="{{twitterSignedIn}}" on-error="_handleError">
+    <firebase-auth id="twitter" provider="twitter" user="{{twitterUser}}" signed-in="{{twitterSignedIn}}" on-error="_handleError" status-known="{{statusKnown}}">
     </firebase-auth>
-    <firebase-auth id="github" provider="github" user="{{githubUser}}" signed-in="{{githubSignedIn}}" on-error="_handleError">
+    <firebase-auth id="github" provider="github" user="{{githubUser}}" signed-in="{{githubSignedIn}}" on-error="_handleError" status-known="{{statusKnown}}">
     </firebase-auth>
-    <firebase-auth id="anonymous" user="{{anonUser}}" signed-in="{{anonSignedIn}}" on-error="_handleError">
+    <firebase-auth id="anonymous" user="{{anonUser}}" signed-in="{{anonSignedIn}}" on-error="_handleError" status-known="{{statusKnown}}">
     </firebase-auth>
-
-    <!--paper-button raised id="loginBtn" onclick="dialog.open()">Login</paper-button-->
     
     <template is="dom-if" if="{{!signedIn}}" id="loginBtn">
         <paper-button raised  on-tap="_login">Login</paper-button>
@@ -153,29 +140,16 @@
     </paper-dialog>
 
   </template>
-  <!-- Creates the element's prototype and registers it -->
   <script>
     Polymer({
         is: 'app-login',
 
         ready: function() {
-            //this.listen(this.$.loginBtn, 'tap', '_login2');
             if ('serviceWorker' in navigator && 'PushManager' in window) {
                 console.log('Service Worker and Push is supported');
             } else {
                 console.warn('Push messaging is not supported');
             }
-        },
-
-        listeners: {
-            //'tap': '_login'
-            //'googSignIn.tap': '_signIn'
-        },
-
-        _login1: function(e) {
-            /*this.$.auth.signInWithPopup()
-            .then(function(response) { console.table(response); })
-            .catch(function(error) { console.table(error); });*/
         },
 
         _login: function(e) {

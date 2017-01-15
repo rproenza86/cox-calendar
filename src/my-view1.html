@@ -16,16 +16,6 @@
       }
     </style>
 
-    <!--firebase-app 
-        id="firebase"
-        app-name="cox_calendar"
-        apiKey= "AIzaSyAa39ysX5eRtUnrfFGskX1vqgpNjhJVe_g"
-        authDomain= "cox-calendar.firebaseapp.com"
-        databaseURL= "https://cox-calendar.firebaseio.com"
-        storageBucket= "cox-calendar.appspot.com"
-        messagingSenderId= "371050413071"
-    ></firebase-app-->
-
     <iron-meta id="meta"></iron-meta>
 
     <div class="card">
@@ -33,7 +23,7 @@
       <date-header notify-update="{{notifyDayUpdated}}"></date-header>
 
       <template id="timesList" is="dom-repeat" items="[[dayTimes]]">  
-          <time-frame frame="[[item]]"></time-frame>
+          <time-frame frame="[[item]]" notifydataupdate="{{notifyDayUpdated}}"></time-frame>
       </template>
 
     </div>
@@ -61,7 +51,11 @@
             {time:'3:00pm', reserved: false, clientName: '', clientEmail: ''},
             {time:'4:00pm', reserved: false, clientName: '', clientEmail: ''},
             {time:'5:00pm', reserved: false, clientName: '', clientEmail: ''}
-          ] }
+          ] },
+          notifyDayUpdated: {
+              type: Boolean,
+              notify: true
+          }
         },
         /**
         * `dayTimes` represents list of hour long slots from 9am to 5pm for the selected day
@@ -77,8 +71,7 @@
         * `notifyUpdate` notify when the date is updated and is excecuted its observer
         **/
         notifyDayUpdated: {
-          readOnly: false,
-          observer: '_notifyUpdation'
+          readOnly: false
         },
       },
 
@@ -94,12 +87,6 @@
       _refreshTimesList: function () {
         this.$.timesList.render();
       },
-
-      _notifyUpdation: function () {
-        console.log(this.$.meta._metaData);
-        this._setupDayInfo();
-      },
-
 
     });
   </script>
