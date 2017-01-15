@@ -1,4 +1,4 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<html><head><link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
@@ -13,7 +13,7 @@
 <link rel="import" href="../bower_components/polymerfire/firebase-query.html">
 <link rel="import" href="shared-styles.html">
 
-<dom-module id="time-frame">
+</head><body><dom-module id="time-frame">
   <template>
 
     <style include="shared-styles">
@@ -95,7 +95,7 @@
     <div class="card">
         <div class$="{{_getClasses(reserved)}}" on-tap="_reserve">
             <paper-icon-item>
-                <iron-icon icon="{{frameTimeIcon}}" item-icon class$="{{_getClassIcon(reserved)}}"></iron-icon>
+                <iron-icon icon="{{frameTimeIcon}}" item-icon="" class$="{{_getClassIcon(reserved)}}"></iron-icon>
                 <span class="spanTime">{{time}}</span>
             </paper-icon-item>
         </div>
@@ -104,68 +104,44 @@
             <paper-fab icon="delete" class="bussy paper-fab" on-click="_reset"></paper-fab>
             <div class="card cardBussy" on-tap="_reserve">
                 <h3 class="bussy clientHeader">Reserved by:</h3>
-                <p class="margin2x" style="align-content: center;"><span class="spanClientInfo">Client Name:</span> {{clientName}}</p>
+                <p class="margin2x" style="align-content: center"><span class="spanClientInfo">Client Name:</span> {{clientName}}</p>
                 <p class="margin2x"><span class="spanClientInfo">Client Email: </span>{{clientEmail}}</p>
             </div>
         </template>
     </div>
 
-    <paper-dialog id="modal" on-iron-overlay-opened="_patchOverlay" modal class="modalDialog1">
-        <paper-fab icon="cancel" class="closeDialog" dialog-confirm autofocus></paper-fab>
+    <paper-dialog id="modal" on-iron-overlay-opened="_patchOverlay" modal="" class="modalDialog1">
+        <paper-fab icon="cancel" class="closeDialog" dialog-confirm="" autofocus=""></paper-fab>
         <form is="iron-form" id="clientForm">
             <h1>Appoinment for 
                 <div class$="{{_getClasses(reserved)}}" on-click="_openTimePicker">
                     {{time}}
                 </div>
             </h1>
-            <paper-input name="name" id="name" label="Name" required>{{clientName}}</paper-input>
+            <paper-input name="name" id="name" label="Name" required="">{{clientName}}</paper-input>
             <br>
-            <paper-input name="email" id="email" label="Email" required>{{clientEmail}}</paper-input>
+            <paper-input name="email" id="email" label="Email" required="">{{clientEmail}}</paper-input>
             <br>
             <div class="buttons">
-            <paper-button raised on-click="_submit">Submit</paper-button>
-            <paper-button raised on-click="_reset">Reset</paper-button>
+            <paper-button raised="" on-click="_submit">Submit</paper-button>
+            <paper-button raised="" on-click="_reset">Reset</paper-button>
             </div>
         </form>
     </paper-dialog>
 
-    <paper-dialog id="timermodal" modal class="paper-time-picker-dialog modalDialog2" on-iron-overlay-opened="_patchOverlay"
-     on-iron-overlay-closed="dismissDialog">
+    <paper-dialog id="timermodal" modal="" class="paper-time-picker-dialog modalDialog2" on-iron-overlay-opened="_patchOverlay" on-iron-overlay-closed="dismissDialog">
         <paper-time-picker id="timePicker" time="{{time}}"></paper-time-picker>
         <div class="buttons">
-            <paper-button dialog-dismiss>Cancel</paper-button>
-            <paper-button dialog-confirm>OK</paper-button>
+            <paper-button dialog-dismiss="">Cancel</paper-button>
+            <paper-button dialog-confirm="">OK</paper-button>
         </div>
     </paper-dialog>
 
     <iron-meta id="meta"></iron-meta>
 
-    <!--firebase-document
-            id="document1"
-            app-name="cox_calendar"
-            path="/"
-            data="[[day]]">
-        </firebase-document>
+    
 
-        <firebase-document
-            id="document2"
-            app-name="cox_calendar"
-            path="/{{day}}"
-            data="[[time]]">
-        </firebase-document>
-
-        <firebase-document
-            id="document3"
-            app-name="cox_calendar"
-            path="/{{day}}/{{time}}"
-            data="{{frame}}">
-    </firebase-document-->
-
-    <!--firebase-query
-        id="query"
-        path="/{{day}}/{{time}}"
-        data="{{frame}}">
-    </firebase-query-->
+    
 
   </template>
 
@@ -310,4 +286,4 @@
     });
   </script>
 </dom-module>
-reserved
+reserved</body></html>

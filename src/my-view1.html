@@ -1,8 +1,4 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/paper-date-picker/paper-date-picker.html">
-<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
 <link rel="import" href="../bower_components/iron-meta/iron-meta.html">
 <link rel="import" href="/bower_components/polymerfire/polymerfire.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-app.html">
@@ -20,7 +16,7 @@
       }
     </style>
 
-    <firebase-app 
+    <!--firebase-app 
         id="firebase"
         app-name="cox_calendar"
         apiKey= "AIzaSyAa39ysX5eRtUnrfFGskX1vqgpNjhJVe_g"
@@ -28,7 +24,7 @@
         databaseURL= "https://cox-calendar.firebaseio.com"
         storageBucket= "cox-calendar.appspot.com"
         messagingSenderId= "371050413071"
-    ></firebase-app>
+    ></firebase-app-->
 
     <iron-meta id="meta"></iron-meta>
 
@@ -86,36 +82,8 @@
         },
       },
 
-      attached: function () {
-
-        let day = this.$.meta._metaData['currentDay'],
-            frameObjArray = this.dayTimes
-            self = this;
-
-        //this.$.firebase.database().ref(+ '/' + day + '/' + time ).set(frameObjArray);
-      },
-
       ready: function () {
         this._setupDayInfo();
-
-        let day = this.$.meta._metaData['currentDay'],
-            frameObjArray = this.dayTimes
-            self = this;
-
-        this.set('day', day);
-
-        
-        frameObjArray.map((obj)=>{
-            //self._writeUserAppointment(day, obj.time, obj)
-        });
-
-        //console.log('updated time list',this.$.meta._metaData);
-        //console.dir(this.$.firebase);
-        
-      },
-
-      _writeUserAppointment: function(day, time, frameObj) {
-        //this.$.firebase.database().ref(day + '/' + time ).set(frameObj);
       },
       
       _setupDayInfo: function() {
@@ -129,7 +97,6 @@
 
       _notifyUpdation: function () {
         console.log(this.$.meta._metaData);
-        //this.$.meta._metaData[this.$.meta._metaData['currentDay']] = this.dayTimes;
         this._setupDayInfo();
       },
 

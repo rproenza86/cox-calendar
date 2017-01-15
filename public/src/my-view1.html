@@ -1,0 +1,36 @@
+<html><head><link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="/bower_components/polymerfire/polymerfire.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="time-frame.html">
+<link rel="import" href="date-header.html">
+
+</head><body><dom-module id="my-view1">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+    </style>
+
+    
+
+    <iron-meta id="meta"></iron-meta>
+
+    <div class="card">
+
+      <date-header notify-update="{{notifyDayUpdated}}"></date-header>
+
+      <template id="timesList" is="dom-repeat" items="[[dayTimes]]">  
+          <time-frame frame="[[item]]"></time-frame>
+      </template>
+
+    </div>
+  </template>
+
+  <script>Polymer({is:"my-view1",properties:{times:{type:Object,notify:!0,readOnly:!0,value:function(){return[{time:"9:00am",reserved:!1,clientName:"",clientEmail:""},{time:"10:00am",reserved:!1,clientName:"",clientEmail:""},{time:"11:00am",reserved:!1,clientName:"",clientEmail:""},{time:"12:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"1:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"2:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"3:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"4:00pm",reserved:!1,clientName:"",clientEmail:""},{time:"5:00pm",reserved:!1,clientName:"",clientEmail:""}]}},dayTimes:{type:Object,notify:!0,readOnly:!1,value:function(){return[]},observer:"_refreshTimesList"},notifyDayUpdated:{readOnly:!1,observer:"_notifyUpdation"}},ready:function(){this._setupDayInfo()},_setupDayInfo:function(){this.set("dayTimes",this.$.meta._metaData[this.$.meta._metaData.currentDay]),this.$.timesList.render()},_refreshTimesList:function(){this.$.timesList.render()},_notifyUpdation:function(){console.log(this.$.meta._metaData),this._setupDayInfo()}});</script>
+</dom-module>
+</body></html>

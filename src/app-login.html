@@ -79,13 +79,16 @@
         background-color: #414040;
         }
     </style>
-
-    <firebase-app 
-        auth-domain="webbroker-3795c.firebaseapp.com"
-        database-url="https://webbroker-3795c.firebaseio.com"
-        api-key="AIzaSyC3dZ7N75-CHIjDdgTyPERcxbGU8N-6nrQ"
-        messaging-sender-id="93636083292">
-    </firebase-app>
+    
+    <firebase-app
+        id="firebase"
+        app-name="cox_calendar" 
+        api-key= "AIzaSyAa39ysX5eRtUnrfFGskX1vqgpNjhJVe_g"
+        auth-domain= "cox-calendar.firebaseapp.com"
+        database-url= "https://cox-calendar.firebaseio.com"
+        storage-bucket= "cox-calendar.appspot.com"
+        messaging-sender-id= "371050413071"
+    ></firebase-app>
       
     <firebase-auth id="google" provider="google" user="{{googleUser}}" signed-in="{{googleSignedIn}}" on-error="_handleError">
     </firebase-auth>

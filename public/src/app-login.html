@@ -1,0 +1,151 @@
+<html><head><link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+
+</head><body><dom-module id="app-login">
+  
+  <template>
+    <style>
+        :host {
+        display: block;
+        padding: 16px;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        margin: 0 auto;
+        text-align: center;
+        margin: 0 auto;
+        }
+
+        :host(.horizontal) {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        @apply(--layout-around-justified);
+        max-width: inherit;
+        }
+
+        paper-dialog {
+            padding: 0px 40px;
+            left: 0% !important;
+        }
+        firebase-auth{
+        display: none;
+        }
+        .signInButton img{
+        padding: 0 8px 0 2px;
+        max-height: 15px;
+        }
+        .signInButton{
+        width: 220px;
+        text-align: left;
+        margin-bottom: 15px;
+        text-transform: none;
+        min-height: 40px;
+        }
+        .signInButton.mini {
+        width: 150px;
+        }
+        #googSignIn{
+        background-color: white;
+        }
+        #fbSignIn{
+        background-color: #3B5999;
+        color: white;
+        }
+        #twtrSignIn{
+        background-color: #55ACEE;
+        color: white;
+        }
+        #ghSignIn{
+        background-color: #F5F5F5
+        }
+        #anonSignIn{
+        background-color: #303030;
+        color: white;
+        }
+        #fbSignIn:hover{
+        background-color: #4265b0;
+        }
+        #twtrSignIn:hover{
+        background-color: #5cb9ff;
+        }
+        #ghSignIn:hover{
+        background-color: white;
+        }
+        #anonSignIn:hover{
+        background-color: #414040;
+        }
+    </style>
+    
+    <firebase-app id="firebase" app-name="cox_calendar" api-key="AIzaSyAa39ysX5eRtUnrfFGskX1vqgpNjhJVe_g" auth-domain="cox-calendar.firebaseapp.com" database-url="https://cox-calendar.firebaseio.com" storage-bucket="cox-calendar.appspot.com" messaging-sender-id="371050413071"></firebase-app>
+      
+    <firebase-auth id="google" provider="google" user="{{googleUser}}" signed-in="{{googleSignedIn}}" on-error="_handleError">
+    </firebase-auth>
+    <firebase-auth id="facebook" provider="facebook" user="{{facebookUser}}" signed-in="{{facebookSignedIn}}" on-error="_handleError">
+    </firebase-auth>
+    <firebase-auth id="twitter" provider="twitter" user="{{twitterUser}}" signed-in="{{twitterSignedIn}}" on-error="_handleError">
+    </firebase-auth>
+    <firebase-auth id="github" provider="github" user="{{githubUser}}" signed-in="{{githubSignedIn}}" on-error="_handleError">
+    </firebase-auth>
+    <firebase-auth id="anonymous" user="{{anonUser}}" signed-in="{{anonSignedIn}}" on-error="_handleError">
+    </firebase-auth>
+
+    
+    
+    <template is="dom-if" if="{{!signedIn}}" id="loginBtn">
+        <paper-button raised="" on-tap="_login">Login</paper-button>
+    </template>
+    <template is="dom-if" if="{{signedIn}}">
+        <paper-button raised="" id="loginBtn1" on-tap="signOut">Log Out</paper-button>
+    </template>
+
+    <paper-dialog id="dialog">
+        <paper-card>
+            <h2>{{_getButtonText()}}</h2>
+            <template is="dom-if" if="{{google}}">
+                <paper-button id="googSignIn" class$="signInButton {{_getMiniClass()}}" on-tap="_signIn" data-auth="#google" raised=""><img src="../images/google.svg">Google</paper-button>
+            </template>
+            <template is="dom-if" if="{{facebook}}">
+                <paper-button id="fbSignIn" class$="signInButton {{_getMiniClass()}}" on-tap="_signIn" data-auth="#facebook" raised=""><img src="../images/facebook.svg">Facebook</paper-button>
+            </template>
+            <template is="dom-if" if="{{twitter}}">
+                <paper-button id="twtrSignIn" class$="signInButton {{_getMiniClass()}}" on-tap="_signIn" data-auth="#twitter" raised=""><img src="../images/twitter.svg">Twitter  </paper-button>
+            </template>
+            <template is="dom-if" if="{{github}}">
+                <paper-button id="ghSignIn" class$="signInButton {{_getMiniClass()}}" on-tap="_signIn" data-auth="#github" raised=""><img src="../images/github.svg">GitHub</paper-button>
+            </template>
+            <template is="dom-if" if="{{anonymous}}">
+                <paper-button id="anonSignIn" class$="signInButton {{_getMiniClass()}}" on-tap="_signIn" data-auth="#anonymous" raised=""> <img src="../images/anon.svg"> {{_getButtonText("anon")}}</paper-button>
+            </template>
+        </paper-card>
+        <br><br>
+        <template is="dom-if" if="{{signedIn}}">
+            <br>
+            <paper-button raised="" on-tap="signOut" style="padding-buttom:10px !important">Log Out</paper-button>
+            <br>
+            <template is="dom-if" if="{{debug}}">
+                <paper-card>
+                    <h2>Debug info:</h2>
+                    <div> user.id = {{user.uid}}</div>
+                    <div> signedIn = {{signedIn}}</div>
+                    <div> user.displayName = {{user.displayName}}</div>
+                    <div> user.email = {{user.email}}</div>
+                    <div> user.emailVerified = {{user.emailVerified}}</div>
+                    <div> user.isAnonymous = {{user.isAnonymous}}</div>
+                    <div> user.photoURL = {{user.photoURL}} <img src$="{{user.photoURL}}" hidden="{{!user.photoURL}}" width="100px" height="100px"> </div>
+                    <div> user.providerId = {{user.providerId}}</div>
+                    <br><br><br>
+                </paper-card>
+                <br><br><br>
+            </template>
+        </template>
+    </paper-dialog>
+
+  </template>
+  
+  <script>Polymer({is:"app-login",ready:function(){"serviceWorker"in navigator&&"PushManager"in window?console.log("Service Worker and Push is supported"):console.warn("Push messaging is not supported")},listeners:{},_login1:function(n){},_login:function(n){this.$.dialog.open()},properties:{appName:{type:String},anonymous:{type:Boolean,value:!1},github:{type:Boolean,value:!1},twitter:{type:Boolean,value:!1},facebook:{type:Boolean,value:!1},google:{type:Boolean,value:!1},redirect:{type:Boolean,value:!1},horizontal:{type:Boolean,value:!1,observer:"_horizontalChanged"},mini:{type:Boolean,value:!1},user:{type:Object,readOnly:!0,reflectToAttribute:!0,notify:!0,computed:"_computeUser(googleUser, facebookUser, twitterUser, githubUser, anonUser)",observer:"_userChanged"},signedIn:{type:Boolean,readOnly:!0,notify:!0,reflectToAttribute:!0,computed:"_computeSignedIn(googleSignedIn, facebookSignedIn, twitterSignedIn, githubSignedIn, anonSignedIn)"},debug:{type:Boolean,value:!1}},_getMiniClass:function(){return this.mini?"mini":""},_getButtonText:function(n){return this.mini?"anon"===n?"Anonymously":"":"anon"===n?"Sign in anonymously":"Sign in with "},_horizontalChanged:function(n,t){n?this.classList.add("horizontal"):this.classList.remove("horizontal")},_computeUser:function(n,t,e,i,o){var s;return s=this.googleSignedIn?n:this.facebookSignedIn?t:this.twitterSignedIn?e:this.githubSignedIn?i:this.anonSignedIn?o:{},s.signedIn=this.signedIn,s},_computeSignedIn:function(n,t,e,i,o){return this.signedInFlag=!0,n||t||e||i||o},_userChanged:function(n){"undefined"!=typeof n&&null!=n&&(0===Object.keys(n).length&&n.constructor===Object||this.fire("signedin",n))},_signIn:function(n){function t(n){"#anonymous"==e?i.$$(e).signInAnonymously():i.redirect?i.$$(e).signInWithRedirect():i.$$(e).signInWithPopup()}var e=n.target.getAttribute("data-auth"),i=this;e?t(e):(e=n.target.parentNode.getAttribute("data-auth"),e?t(e):console.error("authId null")),this.debug||this.$.dialog.close()},_signInGoogle:function(n){},_signInFacebook:function(n){this.$.facebook.signInWithPopup()},_signInTwitter:function(n){this.$.twitter.signInWithPopup()},_signInGithub:function(n){this.$.github.signInWithPopup()},_signInAnonymous:function(n){this.$.anonymous.signInAnonymously()},_handleError:function(n){console.error(n.detail)},signOut:function(){this.googleSignedIn&&this.$.google.signOut(),this.facebookSignedIn&&this.$.facebook.signOut(),this.twitterSignedIn&&this.$.twitter.signOut(),this.githubSignedIn&&this.$.github.signOut(),this.anonSignedIn&&this.$.anonymous.signOut()}});</script>
+</dom-module>
+</body></html>
