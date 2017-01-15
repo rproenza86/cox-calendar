@@ -1,5 +1,8 @@
 # Proof of concept for Cox
 
+## Online Demo:
+https://cox-calendar.firebaseapp.com/
+
 ## Calendar appointments
 This web app allow an user to view a list of available appointment times peer day and to select one. 
 The appointment is saved in the database.
