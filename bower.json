@@ -28,7 +28,8 @@
     "iron-meta": "PolymerElements/iron-meta#^1.1.2",
     "polymerfire": "firebase/polymerfire#^0.10.3",
     "paper-card": "PolymerElements/paper-card#^1.1.4",
-    "tk-loading-backdrop": "butterandfly/tk-loading-backdrop#^0.1.2"
+    "tk-loading-backdrop": "butterandfly/tk-loading-backdrop#^0.1.2",
+    "platinum-sw": "^1.3.0"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
