@@ -253,15 +253,17 @@
 
             let data = firebase.database().ref("/users/"+uid+'/'+this.day+'/'+this.time).once('value').then(function(snapshot) {
                 let frameFound = false;
-                Object.keys(snapshot.val()).map((key)=>{
-                    let frame = snapshot.val()[key];
-                    if(frame.time.split(':')[0] == self.time.split(':')[0]){
-                        self.set('frame', frame);
-                        self._setupModel();
-                        self.set('frameKey', key);
-                        frameFound = true;
-                    }
-                });
+                if(snapshot.val()){
+                    Object.keys(snapshot.val()).map((key)=>{
+                        let frame = snapshot.val()[key];
+                        if(frame.time.split(':')[0] == self.time.split(':')[0]){
+                            self.set('frame', frame);
+                            self._setupModel();
+                            self.set('frameKey', key);
+                            frameFound = true;
+                        }
+                    });
+                }
             });
             if(!frameFound){
                 self.set('frame', {time:self.get('time'), reserved: false, clientName: '', clientEmail: ''});
